@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Adviento 2025 🎄</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+        }
+
+        /* Countdown Screen */
+        .countdown-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a0a0a 0%, #4a1414 50%, #1a0a0a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 1.5em;
+            animation: fall linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .countdown-content {
+            text-align: center;
+            z-index: 2;
+            padding: 20px;
+        }
+
+        .countdown-title {
+            font-size: 3em;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #ffd700, 0 0 30px #ff6b6b; }
+            50% { text-shadow: 0 0 30px #ffd700, 0 0 50px #ff6b6b; }
+        }
+
+        .countdown-timer {
+            font-size: 6em;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            margin-bottom: 20px;
+        }
+
+        .countdown-label {
+            font-size: 2em;
+            color: #ffcccb;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: black;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .splash-screen.active {
+            display: flex;
+        }
+
+        .splash-screen video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .start-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        }
+
+        .start-overlay.hidden {
+            display: none;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #ffd700 0%, #ff6b6b 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.8em;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(255,215,0,0.5);
+            transition: all 0.3s ease;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .start-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(255,215,0,0.7);
+        }
+
+        .start-title {
+            font-size: 2.5em;
+            color: #ffd700;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8);
+        }
+
+        .skip-button {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10000;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .skip-button.visible {
+            display: block;
+        }
+
+        .skip-button:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        /* Main Calendar */
+        .calendar-container {
+            display: none;
+            padding: 40px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .calendar-container.active {
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .title {
+            font-size: 3.5em;
+            color: #ffd700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            margin-bottom: 20px;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .days-until-christmas {
+            font-size: 1.8em;
+            color: #ffcccb;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            margin-top: 15px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 25px;
+            margin-top: 50px;
+        }
+
+        .day-card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border: 3px solid #ffd700;
+        }
+
+        .day-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .day-card:hover:not(.locked) {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255,215,0,0.5);
+        }
+
+        .day-card.locked {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+            border-color: #7f8c8d;
+        }
+
+        .day-card.opened {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-color: #2ecc71;
+        }
+
+        .day-number {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+
+        .day-icon {
+            font-size: 2em;
+            margin-top: 10px;
+            z-index: 1;
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+            z-index: 1;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0,0,0,0.95);
+            z-index: 10000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 25px;
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            border: 4px solid #ffd700;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            color: #fff;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255,0,0,0.8);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,0,0,1);
+            transform: rotate(90deg);
+        }
+
+        .modal-day-title {
+            font-size: 2.5em;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .clue-section {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .clue-title {
+            font-size: 1.8em;
+            color: #ffcccb;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .clue-text {
+            font-size: 1.3em;
+            color: #fff;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .reveal-section {
+            text-align: center;
+        }
+
+        .reveal-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .reveal-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(245,87,108,0.5);
+        }
+
+        .reveal-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .timer-display {
+            font-size: 1.5em;
+            color: #ffd700;
+            margin-top: 15px;
+        }
+
+        .secret-location {
+            background: rgba(255,215,0,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px solid #ffd700;
+        }
+
+        .secret-text {
+            font-size: 1.4em;
+            color: #ffd700;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Background music control */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 1.5em;
+            border: 2px solid #ffd700;
+            transition: all 0.3s ease;
+        }
+
+        .music-control:hover {
+            transform: scale(1.1);
+            background: rgba(255,215,0,0.9);
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 2em; }
+            .countdown-title { font-size: 2em; }
+            .countdown-timer { font-size: 4em; }
+            .countdown-label { font-size: 1.5em; }
+            .days-until-christmas { font-size: 1.3em; }
+            .calendar-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; }
+            .day-number { font-size: 2.5em; }
+            .modal-content { padding: 20px; }
+            .modal-day-title { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Countdown Screen -->
+    <div class="countdown-screen" id="countdownScreen">
+        <div class="countdown-content">
+            <div class="countdown-title">🎄 Calendario de Adviento 2025 🎅</div>
+            <div class="countdown-timer" id="countdownTimer">00</div>
+            <div class="countdown-label">días hasta el 1 de Diciembre</div>
+        </div>
+    </div>
+
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="start-overlay" id="startOverlay">
+            <div class="start-title">🎄 Calendario de Adviento 2025 🎄</div>
+            <button class="start-button" onclick="startExperience()">✨ Comenzar ✨</button>
+        </div>
+        <video id="splashVideo" loop>
+            <source src="intro.mp4" type="video/mp4">
+        </video>
+        <button class="skip-button" id="skipButton" onclick="skipIntro()">Saltar ⏭️</button>
+    </div>
+
+    <!-- Main Calendar -->
+    <div class="calendar-container" id="calendarContainer">
+        <div class="header">
+            <h1 class="title">🎄 Calendario de Adviento 2025 🎄</h1>
+            <div class="days-until-christmas" id="daysUntilChristmas"></div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="dayModal">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal()">✕</div>
+            <h2 class="modal-day-title" id="modalTitle"></h2>
+            
+            <div class="video-container" id="videoContainer">
+                <!-- Video will be inserted here -->
+            </div>
+
+            <div class="clue-section">
+                <h3 class="clue-title">🔍 Pista del día</h3>
+                <p class="clue-text" id="clueText"></p>
+            </div>
+
+            <div class="reveal-section">
+                <button class="reveal-btn" id="revealBtn" onclick="startRevealTimer()">
+                    🔓 Revelar Secreto
+                </button>
+                <div class="timer-display" id="timerDisplay"></div>
+                <div class="secret-location" id="secretLocation" style="display: none;">
+                    <p class="secret-text" id="secretText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <iframe id="bgMusic" src="" allow="autoplay" style="display: none;"></iframe>
+    <div class="music-control" id="musicControl" onclick="toggleMusic()">🎵</div>
+
+    <script>
+        // CONFIGURATION
+        const SIMULATED_DATE = new Date('2024-12-24');
+        const USE_SIMULATED_DATE = false;
+
+        // Cambiar a true para usar videos locales en lugar de YouTube
+        const USE_LOCAL_VIDEOS = true;
+        
+        const BG_MUSIC_URL = 'https://www.youtube.com/embed/TUVKd2PsDs0?autoplay=1&loop=1&playlist=TUVKd2PsDs0';
+        
+        // IDs de YouTube para cada día
+        const dayVideos = {
+            1: 'dQw4w9WgXcQ', 2: 'dQw4w9WgXcQ', 3: 'dQw4w9WgXcQ', 4: 'dQw4w9WgXcQ',
+            5: 'dQw4w9WgXcQ', 6: 'dQw4w9WgXcQ', 7: 'dQw4w9WgXcQ', 8: 'dQw4w9WgXcQ',
+            9: 'dQw4w9WgXcQ', 10: 'dQw4w9WgXcQ', 11: 'dQw4w9WgXcQ', 12: 'dQw4w9WgXcQ',
+            13: 'dQw4w9WgXcQ', 14: 'dQw4w9WgXcQ', 15: 'dQw4w9WgXcQ', 16: 'dQw4w9WgXcQ',
+            17: 'dQw4w9WgXcQ', 18: 'dQw4w9WgXcQ', 19: 'dQw4w9WgXcQ', 20: 'dQw4w9WgXcQ',
+            21: 'dQw4w9WgXcQ', 22: 'dQw4w9WgXcQ', 23: 'dQw4w9WgXcQ', 24: 'dQw4w9WgXcQ'
+        };
+
+        // Rutas de videos locales (si USE_LOCAL_VIDEOS = true)
+        const localDayVideos = {
+            1: 'videos/dia1.mp4', 2: 'videos/dia2.mp4', 3: 'videos/dia3.mp4', 4: 'videos/dia4.mp4',
+            5: 'videos/dia5.mp4', 6: 'videos/dia6.mp4', 7: 'videos/dia7.mp4', 8: 'videos/dia8.mp4',
+            9: 'videos/dia9.mp4', 10: 'videos/dia10.mp4', 11: 'videos/dia11.mp4', 12: 'videos/dia12.mp4',
+            13: 'videos/dia13.mp4', 14: 'videos/dia14.mp4', 15: 'videos/dia15.mp4', 16: 'videos/dia16.mp4',
+            17: 'videos/dia17.mp4', 18: 'videos/dia18.mp4', 19: 'videos/dia19.mp4', 20: 'videos/dia20.mp4',
+            21: 'videos/dia21.mp4', 22: 'videos/dia22.mp4', 23: 'videos/dia23.mp4', 24: 'videos/dia24.mp4'
+        };
+
+        const cluesAndSecrets = {
+            1: { clue: 'Busca donde guardes los recuerdos más dulces del desayuno...', secret: '¿Habrá algo en el armario de la cocina?' },
+            2: { clue: 'Mira donde nos sentamos a ver a Broncano...', secret: '¿Habrá algo debajo del sofá?' },
+            3: { clue: 'Donde las palabras cobran vida...', secret: '¿Miraste entre los libros de la estantería?' },
+            4: { clue: 'Busca en el reino del frío, donde los alimentos duermen...', secret: '¿Habrá algo en la nevera?' },
+            5: { clue: 'Entre Mickey y Minnie', secret: '¿Habrá algo en la cama?' },
+            6: { clue: 'Debajo de donde descansas tu cabeza cada noche...', secret: '¿Habrá algo bajo la almohada?' },
+            7: { clue: 'Donde nos limpiamos después de un largo día...', secret: '¿Habrá algo en el baño?' },
+            8: { clue: 'Busca donde cuelga lo que te protege del frío...', secret: '¿Habrá algo en el perchero?' },
+            9: { clue: 'Donde guardamos los tesoros que calzan nuestros pies...', secret: '¿Habrá algo en el zapatero?' },
+            10: { clue: 'En el lugar donde la ropa espera a ser planchada', secret: '¿Habrá algo en el armario?' },
+            11: { clue: 'Busca donde los platos descansan después de lavarse...', secret: '¿Habrá algo en la cocina?' },
+            12: { clue: 'Donde guardamos los secretos del hogar limpio...', secret: '¿Habrá algo en el armario de la limpieza?' },
+            13: { clue: 'Mira donde el tiempo marca sus segundos...', secret: '¿Habrá algo cerca del reloj del salón?' },
+            14: { clue: 'Donde las especias añaden sabor a nuestras vidas...', secret: '¿Habrá algo en el carrito de las especias?' },
+            15: { clue: 'Busca entre lo que te hace brillar cada mañana...', secret: '¿Habrá algo en el cajón del maquillaje' },
+            16: { clue: 'Donde descansa el control del entretenimiento...', secret: '¿Habrá algo bajo la tele?' },
+            17: { clue: 'En el cajón donde se esconden los remedios al dolor', secret: '¿Habrá algo en el recibidor?' },
+            18: { clue: 'Donde las llaves encuentran su hogar...', secret: '¿Habrá algo en el recibidor?' },
+            19: { clue: 'Busca donde guardamos los cubiertos buenos', secret: '¿Habrá algo en el salón?' },
+            20: { clue: 'Donde la comida se convierte en caliente por arte de magia...', secret: '¿Habrá algo en el microondas?' },
+            21: { clue: 'Busca entre lo que te abriga durante las noches frías...', secret: '¿Habrá algo en el hueco de las mantas?' },
+            22: { clue: 'Donde los calcetines duermen...', secret: '¿Habrá algo en el cajón de los calceltines?' },
+            23: { clue: 'Busca en el trono blanco...', secret: '¿Habrá algo en el WC?' },
+            24: { clue: '¡El último día! Busca donde brilla el árbol de navidad...', secret: '¿Has mirado en el árbol?' }
+        };
+
+        const icons = ['🎁', '⭐', '🎄', '❄️', '🔔', '🕯️', '🦌', '🎅', '⛄', '🍬', '🧦', '🎀'];
+        
+        let musicPlaying = true;
+        let revealTimers = {};
+        let openedDays = JSON.parse(localStorage.getItem('openedDays') || '[]');
+
+        function init() {
+            const today = USE_SIMULATED_DATE ? SIMULATED_DATE : new Date();
+            const adventStart = new Date(today.getFullYear(), 11, 1);
+            
+            if (today < adventStart) {
+                showCountdown(today, adventStart);
+            } else {
+                showAdventCalendar(today);
+            }
+            
+            createSnowflakes();
+        }
+
+        function showCountdown(today, adventStart) {
+            const countdownScreen = document.getElementById('countdownScreen');
+            const countdownTimer = document.getElementById('countdownTimer');
+            
+            function updateCountdown() {
+                const now = USE_SIMULATED_DATE ? SIMULATED_DATE : new Date();
+                const diff = adventStart - now;
+                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                countdownTimer.textContent = days;
+            }
+            
+            updateCountdown();
+            setInterval(updateCountdown, 60000);
+        }
+
+        function showAdventCalendar(today) {
+            document.getElementById('countdownScreen').style.display = 'none';
+            
+            const splashScreen = document.getElementById('splashScreen');
+            splashScreen.classList.add('active');
+            
+            generateCalendar(today);
+            updateDaysUntilChristmas(today);
+        }
+
+        function startExperience() {
+            const startOverlay = document.getElementById('startOverlay');
+            const splashVideo = document.getElementById('splashVideo');
+            const skipButton = document.getElementById('skipButton');
+            
+            // Ocultar overlay y mostrar botón skip
+            startOverlay.classList.add('hidden');
+            skipButton.classList.add('visible');
+            
+            // Reproducir video con sonido
+            splashVideo.muted = false;
+            splashVideo.play();
+            
+            // Detectar cuando termina el video
+            splashVideo.addEventListener('ended', () => {
+                skipIntro();
+            });
+            
+            // Auto-skip después de 30 segundos
+            setTimeout(() => {
+                const splashScreen = document.getElementById('splashScreen');
+                if (splashScreen.classList.contains('active')) {
+                    skipIntro();
+                }
+            }, 26500);
+        }
+
+        function skipIntro() {
+            const splashScreen = document.getElementById('splashScreen');
+            const splashVideo = document.getElementById('splashVideo');
+            
+            splashVideo.pause();
+            splashScreen.classList.remove('active');
+            document.getElementById('calendarContainer').classList.add('active');
+            document.getElementById('bgMusic').src = BG_MUSIC_URL;
+        }
+
+        function generateCalendar(today) {
+            const grid = document.getElementById('calendarGrid');
+            const currentDay = today.getDate();
+            const currentMonth = today.getMonth();
+            
+            for (let day = 1; day <= 24; day++) {
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                
+                const isDecember = currentMonth === 11;
+                const isLocked = !isDecember || day > currentDay;
+                const isOpened = openedDays.includes(day);
+                
+                if (isLocked) card.classList.add('locked');
+                if (isOpened) card.classList.add('opened');
+                
+                const icon = icons[day % icons.length];
+                
+                card.innerHTML = `
+                    <div class="day-number">${day}</div>
+                    <div class="day-icon">${icon}</div>
+                    ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
+                `;
+                
+                if (!isLocked) card.onclick = () => openDay(day);
+                
+                grid.appendChild(card);
+            }
+        }
+
+        function updateDaysUntilChristmas(today) {
+            const christmas = new Date(today.getFullYear(), 11, 25);
+            const diff = christmas - today;
+            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('daysUntilChristmas').textContent = `Faltan ${days} días para Navidad 🎅`;
+        }
+
+        function openDay(day) {
+            const modal = document.getElementById('dayModal');
+            const videoContainer = document.getElementById('videoContainer');
+            const bgMusic = document.getElementById('bgMusic');
+            
+            // Pausar música de fondo
+            if (musicPlaying) {
+                bgMusic.src = '';
+            }
+            
+            document.getElementById('modalTitle').textContent = `Día ${day} de Diciembre 🎄`;
+            document.getElementById('clueText').textContent = cluesAndSecrets[day].clue;
+            document.getElementById('secretText').textContent = cluesAndSecrets[day].secret;
+            
+            // Limpiar contenedor de video
+            videoContainer.innerHTML = '';
+            
+            // Insertar video (YouTube o local)
+            if (USE_LOCAL_VIDEOS) {
+                const video = document.createElement('video');
+                video.controls = true;
+                video.autoplay = true;
+                const source = document.createElement('source');
+                source.src = localDayVideos[day];
+                source.type = 'video/mp4';
+                video.appendChild(source);
+                videoContainer.appendChild(video);
+            } else {
+                const iframe = document.createElement('iframe');
+                iframe.src = `https://www.youtube.com/embed/${dayVideos[day]}?autoplay=1`;
+                iframe.allow = 'autoplay';
+                videoContainer.appendChild(iframe);
+            }
+            
+            document.getElementById('secretLocation').style.display = 'none';
+            document.getElementById('timerDisplay').textContent = '';
+            document.getElementById('revealBtn').disabled = false;
+            document.getElementById('revealBtn').textContent = '🔓 Revelar Secreto';
+            
+            if (revealTimers[day]) {
+                clearInterval(revealTimers[day]);
+                delete revealTimers[day];
+            }
+            
+            modal.classList.add('active');
+            
+            if (!openedDays.includes(day)) {
+                openedDays.push(day);
+                localStorage.setItem('openedDays', JSON.stringify(openedDays));
+                
+                const cards = document.querySelectorAll('.day-card');
+                cards[day - 1].classList.add('opened');
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('dayModal');
+            const videoContainer = document.getElementById('videoContainer');
+            const bgMusic = document.getElementById('bgMusic');
+    
+            videoContainer.innerHTML = '';
+            modal.classList.remove('active');
+    
+            // Reanudar música de fondo si estaba activa
+            if (musicPlaying) {
+                bgMusic.src = BG_MUSIC_URL;
+            }
+        }
+
+        function startRevealTimer() {
+            const revealBtn = document.getElementById('revealBtn');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const secretLocation = document.getElementById('secretLocation');
+            
+            revealBtn.disabled = true;
+            let timeLeft = 300;
+            
+            const currentDay = parseInt(document.getElementById('modalTitle').textContent.match(/\d+/)[0]);
+            
+            revealTimers[currentDay] = setInterval(() => {
+                timeLeft--;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `⏳ Espera ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(revealTimers[currentDay]);
+                    delete revealTimers[currentDay];
+                    secretLocation.style.display = 'block';
+                    timerDisplay.textContent = '';
+                    revealBtn.textContent = '✅ Secreto Revelado';
+                }
+            }, 1000);
+        }
+
+        function toggleMusic() {
+            const bgMusic = document.getElementById('bgMusic');
+            const musicControl = document.getElementById('musicControl');
+            
+            if (musicPlaying) {
+                bgMusic.src = '';
+                musicControl.textContent = '🔇';
+                musicPlaying = false;
+            } else {
+                bgMusic.src = BG_MUSIC_URL;
+                musicControl.textContent = '🎵';
+                musicPlaying = true;
+            }
+        }
+
+        function createSnowflakes() {
+            const countdownScreen = document.getElementById('countdownScreen');
+            for (let i = 0; i < 50; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = '❄';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                snowflake.style.fontSize = (Math.random() * 1 + 0.5) + 'em';
+                countdownScreen.appendChild(snowflake);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
