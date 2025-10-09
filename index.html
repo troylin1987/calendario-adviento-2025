@@ -625,6 +625,10 @@
         function showCountdown(today, adventStart) {
             const countdownScreen = document.getElementById('countdownScreen');
             const countdownTimer = document.getElementById('countdownTimer');
+            const bgMusic = document.getElementById('bgMusic');
+            
+            // Iniciar música de fondo en la pantalla de cuenta atrás
+            bgMusic.src = BG_MUSIC_URL;
             
             function updateCountdown() {
                 const now = USE_SIMULATED_DATE ? SIMULATED_DATE : new Date();
