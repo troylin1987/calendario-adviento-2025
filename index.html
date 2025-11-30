@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport ajustado para móviles -->
+    <!-- Viewport para móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Calendario de Adviento 2025 🎄</title>
@@ -27,14 +27,13 @@
             color: #fff;
         }
 
-        /* CONTENEDOR GLOBAL PARA CENTRAR EN PANTALLAS GRANDES */
         body > * {
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
         }
 
-        /* PANTALLA COUNTDOWN */
+        /* COUNTDOWN */
         .countdown-screen {
             position: fixed;
             inset: 0;
@@ -110,6 +109,7 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
+            overflow: hidden;
         }
 
         .splash-screen.active {
@@ -125,13 +125,11 @@
         .start-overlay {
             position: absolute;
             inset: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.6);
             padding: 16px;
             text-align: center;
         }
@@ -176,9 +174,9 @@
             position: absolute;
             bottom: 16px;
             right: 16px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(0,0,0,0.65);
             color: white;
-            border: 1px solid rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.7);
             padding: 8px 14px;
             font-size: 0.9rem;
             border-radius: 999px;
@@ -482,54 +480,49 @@
         }
 
         /* BREAKPOINTS */
-
-        /* Móviles muy pequeños */
         @media (max-width: 480px) {
             .calendar-container {
                 padding-inline: 10px;
             }
-
             .calendar-grid {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
                 gap: 10px;
             }
-
             .day-card {
                 border-radius: 14px;
             }
-
             .modal-content {
                 padding: 18px 12px 20px;
             }
-
             .close-btn {
                 top: 8px;
                 right: 8px;
             }
+            .skip-button {
+                bottom: 10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
         }
 
-        /* Tablets y pantallas medianas */
         @media (min-width: 768px) {
             .calendar-container {
                 padding: 32px 24px 40px;
             }
-
             .calendar-grid {
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 20px;
             }
-
             .modal-content {
                 padding: 28px 22px 26px;
             }
         }
 
-        /* Escritorio grande */
         @media (min-width: 1200px) {
             body {
                 font-size: 18px;
             }
-
             .calendar-grid {
                 gap: 24px;
             }
@@ -552,7 +545,13 @@
             <div class="start-title">🎄 Calendario de Adviento 2025 🎄</div>
             <button class="start-button" onclick="startExperience()">✨ Comenzar ✨</button>
         </div>
-        <video id="splashVideo" loop playsinline>
+        <video
+            id="splashVideo"
+            loop
+            muted
+            playsinline
+            preload="auto"
+        >
             <source src="./Intro.mp4" type="video/mp4"> 
         </video>
         <button class="skip-button" id="skipButton" onclick="skipIntro()">Saltar ⏭️</button>
@@ -597,10 +596,299 @@
     <iframe id="bgMusic" src="" allow="autoplay" style="display: none;"></iframe>
     <div class="music-control" id="musicControl" onclick="toggleMusic()">🎵</div>
 
-    <!-- Tu script original tal cual -->
     <script>
-        /* TODO: aquí va exactamente tu JS original, sin cambios */
-        /* ... pega todo tu <script> de antes ... */
+        // CONFIGURATION
+        const SIMULATED_DATE = new Date('2024-12-24');
+        const USE_SIMULATED_DATE = false;
+
+        const USE_LOCAL_VIDEOS = true;
+        const BG_MUSIC_URL = 'https://www.youtube.com/embed/TUVKd2PsDs0?autoplay=1&loop=1&playlist=TUVKd2PsDs0';
+        
+        const dayVideos = {
+            1: 'dQw4w9WgXcQ', 2: 'dQw4w9WgXcQ', 3: 'dQw4w9WgXcQ', 4: 'dQw4w9WgXcQ',
+            5: 'dQw4w9WgXcQ', 6: 'dQw4w9WgXcQ', 7: 'dQw4w9WgXcQ', 8: 'dQw4w9WgXcQ',
+            9: 'dQw4w9WgXcQ', 10: 'dQw4w9WgXcQ', 11: 'dQw4w9WgXcQ', 12: 'dQw4w9WgXcQ',
+            13: 'dQw4w9WgXcQ', 14: 'dQw4w9WgXcQ', 15: 'dQw4w9WgXcQ', 16: 'dQw4w9WgXcQ',
+            17: 'dQw4w9WgXcQ', 18: 'dQw4w9WgXcQ', 19: 'dQw4w9WgXcQ', 20: 'dQw4w9WgXcQ',
+            21: 'dQw4w9WgXcQ', 22: 'dQw4w9WgXcQ', 23: 'dQw4w9WgXcQ', 24: 'dQw4w9WgXcQ'
+        };
+
+        const localDayVideos = {
+            1: 'videos/dia1.mp4', 2: 'videos/dia2.mp4', 3: 'videos/dia3.mp4', 4: 'videos/dia4.mp4',
+            5: 'videos/dia5.mp4', 6: 'videos/dia6.mp4', 7: 'videos/dia7.mp4', 8: 'videos/dia8.mp4',
+            9: 'videos/dia9.mp4', 10: 'videos/dia10.mp4', 11: 'videos/dia11.mp4', 12: 'videos/dia12.mp4',
+            13: 'videos/dia13.mp4', 14: 'videos/dia14.mp4', 15: 'videos/dia15.mp4', 16: 'videos/dia16.mp4',
+            17: 'videos/dia17.mp4', 18: 'videos/dia18.mp4', 19: 'videos/dia19.mp4', 20: 'videos/dia20.mp4',
+            21: 'videos/dia21.mp4', 22: 'videos/dia22.mp4', 23: 'videos/dia23.mp4', 24: 'videos/dia24.mp4'
+        };
+
+        const cluesAndSecrets = {
+            1: { clue: 'Busca donde guardes los recuerdos más dulces del desayuno...', secret: '¿Habrá algo en el armario de la cocina?' },
+            2: { clue: 'Mira donde nos sentamos a ver a Broncano...', secret: '¿Habrá algo debajo del sofá?' },
+            3: { clue: 'Donde las palabras cobran vida...', secret: '¿Miraste entre los libros de la estantería?' },
+            4: { clue: 'Busca en el reino del frío, donde los alimentos duermen...', secret: '¿Habrá algo en la nevera?' },
+            5: { clue: 'Entre Mickey y Minnie', secret: '¿Habrá algo en la cama?' },
+            6: { clue: 'Debajo de donde descansas tu cabeza cada noche...', secret: '¿Habrá algo bajo la almohada?' },
+            7: { clue: 'Donde nos limpiamos después de un largo día...', secret: '¿Habrá algo en el baño?' },
+            8: { clue: 'Busca donde cuelga lo que te protege del frío...', secret: '¿Habrá algo en el perchero?' },
+            9: { clue: 'Donde guardamos los tesoros que calzan nuestros pies...', secret: '¿Habrá algo en el zapatero?' },
+            10: { clue: 'En el lugar donde la ropa espera a ser planchada', secret: '¿Habrá algo en el armario?' },
+            11: { clue: 'Busca donde los platos descansan después de lavarse...', secret: '¿Habrá algo en la cocina?' },
+            12: { clue: 'Donde guardamos los secretos del hogar limpio...', secret: '¿Habrá algo en el armario de la limpieza?' },
+            13: { clue: 'Mira donde el tiempo marca sus segundos...', secret: '¿Habrá algo cerca del reloj del salón?' },
+            14: { clue: 'Donde las especias añaden sabor a nuestras vidas...', secret: '¿Habrá algo en el carrito de las especias?' },
+            15: { clue: 'Busca entre lo que te hace brillar cada mañana...', secret: '¿Habrá algo en el cajón del maquillaje' },
+            16: { clue: 'Donde descansa el control del entretenimiento...', secret: '¿Habrá algo bajo la tele?' },
+            17: { clue: 'En el cajón donde se esconden los remedios al dolor', secret: '¿Habrá algo en el recibidor?' },
+            18: { clue: 'Donde las llaves encuentran su hogar...', secret: '¿Habrá algo en el recibidor?' },
+            19: { clue: 'Busca donde guardamos los cubiertos buenos', secret: '¿Habrá algo en el salón?' },
+            20: { clue: 'Donde la comida se convierte en caliente por arte de magia...', secret: '¿Habrá algo en el microondas?' },
+            21: { clue: 'Busca entre lo que te abriga durante las noches frías...', secret: '¿Habrá algo en el hueco de las mantas?' },
+            22: { clue: 'Donde los calcetines duermen...', secret: '¿Habrá algo en el cajón de los calceltines?' },
+            23: { clue: 'Busca en el trono blanco...', secret: '¿Habrá algo en el WC?' },
+            24: { clue: '¡El último día! Busca donde brilla el árbol de navidad...', secret: '¿Has mirado en el árbol?' }
+        };
+
+        const icons = ['🎁', '⭐', '🎄', '❄️', '🔔', '🕯️', '🦌', '🎅', '⛄', '🍬', '🧦', '🎀'];
+        
+        let musicPlaying = true;
+        let revealTimers = {};
+        let openedDays = JSON.parse(localStorage.getItem('openedDays') || '[]');
+
+        function init() {
+            const today = USE_SIMULATED_DATE ? SIMULATED_DATE : new Date();
+            const adventStart = new Date(today.getFullYear(), 11, 1);
+            
+            if (today < adventStart) {
+                showCountdown(today, adventStart);
+            } else {
+                showAdventCalendar(today);
+            }
+            
+            createSnowflakes();
+        }
+
+        function showCountdown(today, adventStart) {
+            const countdownTimer = document.getElementById('countdownTimer');
+            const bgMusic = document.getElementById('bgMusic');
+            
+            bgMusic.src = BG_MUSIC_URL;
+            
+            function updateCountdown() {
+                const now = USE_SIMULATED_DATE ? SIMULATED_DATE : new Date();
+                const diff = adventStart - now;
+                const days = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+                countdownTimer.textContent = days;
+            }
+            
+            updateCountdown();
+            setInterval(updateCountdown, 60000);
+        }
+
+        function showAdventCalendar(today) {
+            document.getElementById('countdownScreen').style.display = 'none';
+            
+            const splashScreen = document.getElementById('splashScreen');
+            splashScreen.classList.add('active');
+            
+            generateCalendar(today);
+            updateDaysUntilChristmas(today);
+        }
+
+        function startExperience() {
+            const startOverlay = document.getElementById('startOverlay');
+            const splashVideo = document.getElementById('splashVideo');
+            const skipButton = document.getElementById('skipButton');
+            
+            startOverlay.classList.add('hidden');
+            skipButton.classList.add('visible');
+            
+            // activar sonido al tener interacción del usuario
+            splashVideo.muted = false;
+            splashVideo.play().catch(() => {});
+            
+            splashVideo.addEventListener('ended', () => {
+                skipIntro();
+            });
+            
+            setTimeout(() => {
+                const splashScreen = document.getElementById('splashScreen');
+                if (splashScreen.classList.contains('active')) {
+                    skipIntro();
+                }
+            }, 26500);
+        }
+
+        function skipIntro() {
+            const splashScreen = document.getElementById('splashScreen');
+            const splashVideo = document.getElementById('splashVideo');
+            
+            splashVideo.pause();
+            splashScreen.classList.remove('active');
+            document.getElementById('calendarContainer').classList.add('active');
+            document.getElementById('bgMusic').src = BG_MUSIC_URL;
+        }
+
+        function generateCalendar(today) {
+            const grid = document.getElementById('calendarGrid');
+            const currentDay = today.getDate();
+            const currentMonth = today.getMonth();
+            
+            for (let day = 1; day <= 24; day++) {
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                
+                const isDecember = currentMonth === 11;
+                const isLocked = !isDecember || day > currentDay;
+                const isOpened = openedDays.includes(day);
+                
+                if (isLocked) card.classList.add('locked');
+                if (isOpened) card.classList.add('opened');
+                
+                const icon = icons[day % icons.length];
+                
+                card.innerHTML = `
+                    <div class="day-number">${day}</div>
+                    <div class="day-icon">${icon}</div>
+                    ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
+                `;
+                
+                if (!isLocked) card.onclick = () => openDay(day);
+                
+                grid.appendChild(card);
+            }
+        }
+
+        function updateDaysUntilChristmas(today) {
+            const christmas = new Date(today.getFullYear(), 11, 25);
+            const diff = christmas - today;
+            const days = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+            document.getElementById('daysUntilChristmas').textContent = `Faltan ${days} días para Navidad 🎅`;
+        }
+
+        function openDay(day) {
+            const modal = document.getElementById('dayModal');
+            const videoContainer = document.getElementById('videoContainer');
+            const bgMusic = document.getElementById('bgMusic');
+            
+            if (musicPlaying) {
+                bgMusic.src = '';
+            }
+            
+            document.getElementById('modalTitle').textContent = `Día ${day} de Diciembre 🎄`;
+            document.getElementById('clueText').textContent = cluesAndSecrets[day].clue;
+            document.getElementById('secretText').textContent = cluesAndSecrets[day].secret;
+            
+            videoContainer.innerHTML = '';
+            
+            if (USE_LOCAL_VIDEOS) {
+                const video = document.createElement('video');
+                video.controls = true;
+                video.autoplay = true;
+                video.playsInline = true;
+                const source = document.createElement('source');
+                source.src = localDayVideos[day];
+                source.type = 'video/mp4';
+                video.appendChild(source);
+                videoContainer.appendChild(video);
+            } else {
+                const iframe = document.createElement('iframe');
+                iframe.src = `https://www.youtube.com/embed/${dayVideos[day]}?autoplay=1`;
+                iframe.allow = 'autoplay';
+                videoContainer.appendChild(iframe);
+            }
+            
+            document.getElementById('secretLocation').style.display = 'none';
+            document.getElementById('timerDisplay').textContent = '';
+            document.getElementById('revealBtn').disabled = false;
+            document.getElementById('revealBtn').textContent = '🔓 Revelar Secreto';
+            
+            if (revealTimers[day]) {
+                clearInterval(revealTimers[day]);
+                delete revealTimers[day];
+            }
+            
+            modal.classList.add('active');
+            
+            if (!openedDays.includes(day)) {
+                openedDays.push(day);
+                localStorage.setItem('openedDays', JSON.stringify(openedDays));
+                
+                const cards = document.querySelectorAll('.day-card');
+                cards[day - 1].classList.add('opened');
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('dayModal');
+            const videoContainer = document.getElementById('videoContainer');
+            const bgMusic = document.getElementById('bgMusic');
+    
+            videoContainer.innerHTML = '';
+            modal.classList.remove('active');
+    
+            if (musicPlaying) {
+                bgMusic.src = BG_MUSIC_URL;
+            }
+        }
+
+        function startRevealTimer() {
+            const revealBtn = document.getElementById('revealBtn');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const secretLocation = document.getElementById('secretLocation');
+            
+            revealBtn.disabled = true;
+            let timeLeft = 300;
+            
+            const currentDay = parseInt(document.getElementById('modalTitle').textContent.match(/\d+/)[0]);
+            
+            revealTimers[currentDay] = setInterval(() => {
+                timeLeft--;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `⏳ Espera ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(revealTimers[currentDay]);
+                    delete revealTimers[currentDay];
+                    secretLocation.style.display = 'block';
+                    timerDisplay.textContent = '';
+                    revealBtn.textContent = '✅ Secreto Revelado';
+                }
+            }, 1000);
+        }
+
+        function toggleMusic() {
+            const bgMusic = document.getElementById('bgMusic');
+            const musicControl = document.getElementById('musicControl');
+            
+            if (musicPlaying) {
+                bgMusic.src = '';
+                musicControl.textContent = '🔇';
+                musicPlaying = false;
+            } else {
+                bgMusic.src = BG_MUSIC_URL;
+                musicControl.textContent = '🎵';
+                musicPlaying = true;
+            }
+        }
+
+        function createSnowflakes() {
+            const countdownScreen = document.getElementById('countdownScreen');
+            for (let i = 0; i < 50; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = '❄';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                snowflake.style.fontSize = (Math.random() * 1 + 0.5) + 'em';
+                countdownScreen.appendChild(snowflake);
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>
