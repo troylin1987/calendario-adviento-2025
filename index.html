@@ -116,19 +116,16 @@
     display: flex;
 }
 
-/* Vídeo como background que rellena el ancho del móvil,
-   manteniendo proporciones y pudiendo recortar por arriba/abajo */
+/* Vídeo ajustado al ancho, manteniendo aspecto, centrado vertical */
 .splash-screen video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
+    position: relative;
+    width: 100%;
     height: auto;
-    transform: translate(-50%, -50%);
-    object-fit: cover;
+    max-height: 100vh;
+    object-fit: contain;
+    object-position: center center;
 }
+
 
 /* Overlay por ENCIMA del vídeo, con su propio stacking context */
 .start-overlay {
