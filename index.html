@@ -100,43 +100,53 @@
 
         /* PANTALLA INTRO */
         .splash-screen {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100vh;
-            background: #000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            overflow: hidden;
-        }
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    background: #000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    overflow: hidden;
+}
 
-        .splash-screen.active {
-            display: flex;
-        }
+.splash-screen.active {
+    display: flex;
+}
 
-        .splash-screen video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+/* El vídeo al fondo de todo */
+.splash-screen video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
 
-        .start-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.6);
-            padding: 16px;
-            text-align: center;
-        }
+/* Overlay por ENCIMA del vídeo, con su propio stacking context */
+.start-overlay {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.45);
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
 
-        .start-overlay.hidden {
-            display: none;
-        }
+.start-overlay.hidden {
+    display: none;
+}
+
 
         .start-title {
             font-size: clamp(1.8rem, 4vw, 2.5rem);
@@ -171,26 +181,36 @@
         }
 
         .skip-button {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            background: rgba(0,0,0,0.65);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.7);
-            padding: 8px 14px;
-            font-size: 0.9rem;
-            border-radius: 999px;
-            cursor: pointer;
-            z-index: 10000;
-            transition: background 0.2s ease;
-            display: none;
-        }
+    position: fixed;         /* anclado al viewport, no al contenedor */
+    bottom: 16px;
+    right: 16px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.8);
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    border-radius: 999px;
+    cursor: pointer;
+    z-index: 10001;
+    display: none;
+}
 
-        .skip-button.visible {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
+.skip-button.visible {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ajuste extra para móviles muy pequeños */
+@media (max-width: 480px) {
+    .skip-button {
+        bottom: 10px;
+        right: 10px;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+}
+
 
         .skip-button:hover {
             background: rgba(255,255,255,0.3);
